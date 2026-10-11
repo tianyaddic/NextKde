@@ -239,6 +239,12 @@ QtObject {
         readonly property color outlineVariant: ColorScheme.color("outline_variant", tokens.isDarkTheme)
         readonly property color error: ColorScheme.color("error", tokens.isDarkTheme)
         readonly property color errorForeground: ColorScheme.color("on_error", tokens.isDarkTheme)
+        // iOS/macOS system blue. Apple-style buttons and active control tiles
+        // carry this fixed accent instead of the wallpaper-seeded primary, so
+        // the chrome reads the same across themes. Text never sits on the raw
+        // color: it is used as a tint over the material (with the surface ink
+        // on top) or as a glyph accent.
+        readonly property color systemBlue: tokens.isDarkTheme ? "#0a84ff" : "#007aff"
         readonly property color scrim: Qt.rgba(0, 0, 0,
             tokens.isDarkTheme ? 0.42 : 0.24)
     }
@@ -518,5 +524,12 @@ QtObject {
         readonly property int popupCloseDuration: 140
         readonly property real popupStartScale: 0.96
         readonly property real popupAnchorOffset: 20
+    }
+
+    // Shared press feedback for the Apple-style capsule buttons: a quick
+    // scale dip with the fast duration, identical across surfaces.
+    readonly property QtObject buttonMotion: QtObject {
+        readonly property real pressScale: 0.94
+        readonly property int duration: tokens.isMaterial ? 100 : 120
     }
 }

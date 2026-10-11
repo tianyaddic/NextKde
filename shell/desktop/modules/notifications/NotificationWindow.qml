@@ -580,11 +580,26 @@ PanelWindow {
                             height: 28
                             width: actionLabel.implicitWidth + 24
                             radius: 14
-                            color: AppearanceTokens.surface.selectionHighlightStyle === "glass"
-                                ? (ThemeService.isDark ? Qt.rgba(1, 1, 1, 0.08) : Qt.rgba(0, 0, 0, 0.04))
-                                : (actionMouse.containsMouse
-                                    ? (ThemeService.isDark ? Qt.rgba(1, 1, 1, 0.20) : Qt.rgba(0, 0, 0, 0.10))
-                                    : (ThemeService.isDark ? Qt.rgba(1, 1, 1, 0.10) : Qt.rgba(0, 0, 0, 0.05)))
+                            // Apple-style: the default action ("查看") reads as
+                            // a tinted system-blue capsule; other actions keep
+                            // the neutral fill. The surface ink stays on top of
+                            // the tint, so contrast follows the card material.
+                            readonly property bool isPrimary: String(modelData.identifier || "")
+                                .toLowerCase() === "default"
+                            readonly property color tint: AppearanceTokens.colors.systemBlue
+                            color: isPrimary
+                                ? Qt.rgba(tint.r, tint.g, tint.b,
+                                    ThemeService.isDark ? 0.34 : 0.24)
+                                : (AppearanceTokens.surface.selectionHighlightStyle === "glass"
+                                    ? (ThemeService.isDark ? Qt.rgba(1, 1, 1, 0.08) : Qt.rgba(0, 0, 0, 0.04))
+                                    : (actionMouse.containsMouse
+                                        ? (ThemeService.isDark ? Qt.rgba(1, 1, 1, 0.20) : Qt.rgba(0, 0, 0, 0.10))
+                                        : (ThemeService.isDark ? Qt.rgba(1, 1, 1, 0.10) : Qt.rgba(0, 0, 0, 0.05))))
+                            scale: actionMouse.pressed
+                                ? AppearanceTokens.buttonMotion.pressScale : 1
+                            Behavior on scale { NumberAnimation {
+                                duration: AppearanceTokens.buttonMotion.duration
+                                easing.type: Easing.OutCubic } }
 
                             SelectionHighlight {
                                 objectName: "notification-action-highlight"

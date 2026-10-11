@@ -1163,7 +1163,10 @@ PopupWindow {
         Rectangle {
             anchors.fill: parent
             radius: AppearanceTokens.surface.pick(AppearanceTokens.shape.extraLarge, 26)
-            color: ThemeService.isDark ? Qt.rgba(0.04, 0.52, 1.0, 0.28) : Qt.rgba(0.04, 0.52, 1.0, 0.18)
+            readonly property color tint: AppearanceTokens.colors.systemBlue
+            color: ThemeService.isDark
+                ? Qt.rgba(tint.r, tint.g, tint.b, 0.28)
+                : Qt.rgba(tint.r, tint.g, tint.b, 0.18)
             opacity: ControlCenterService.doNotDisturbEnabled ? 1 : 0
             Behavior on opacity { NumberAnimation { duration: 140 } }
         }
@@ -1180,7 +1183,7 @@ PopupWindow {
             layer.effect: MultiEffect {
                 colorization: 1.0
                 colorizationColor: ControlCenterService.doNotDisturbEnabled
-                    ? "#0a84ff" : ThemeService.foregroundColor
+                    ? AppearanceTokens.colors.systemBlue : ThemeService.foregroundColor
             }
         }
         MouseArea {
@@ -1656,14 +1659,31 @@ PopupWindow {
                 font { pixelSize: 12; weight: Font.Bold; family: "Noto Sans CJK SC" }
                 anchors { left: parent.left; top: parent.top }
             }
-            GlassText {
-                text: "清空"
-                color: clearMouse.containsMouse ? "#0a84ff"
-                    : AppearanceTokens.surface.pick(
-                        AppearanceTokens.colors.surfaceContainerHigh,
-                        AppearanceTokens.content.glassInk(0.50))
-                font { pixelSize: 11; family: "Noto Sans CJK SC" }
+            // Apple-style capsule chip; hover tints system blue so the action
+            // reads in both modes without dropping the ink below AA on glass.
+            Rectangle {
                 anchors { right: parent.right; top: parent.top }
+                width: clearLabel.implicitWidth + 18
+                height: 22
+                radius: 11
+                readonly property color tint: AppearanceTokens.colors.systemBlue
+                readonly property color inkBase: ThemeService.foregroundColor
+                color: clearMouse.containsMouse
+                    ? Qt.rgba(tint.r, tint.g, tint.b,
+                        ThemeService.isDark ? 0.30 : 0.20)
+                    : Qt.rgba(inkBase.r, inkBase.g, inkBase.b, 0.10)
+                Behavior on color { ColorAnimation { duration: 110 } }
+                scale: clearMouse.pressed ? AppearanceTokens.buttonMotion.pressScale : 1
+                Behavior on scale { NumberAnimation {
+                    duration: AppearanceTokens.buttonMotion.duration
+                    easing.type: Easing.OutCubic } }
+                GlassText {
+                    id: clearLabel
+                    anchors.centerIn: parent
+                    text: "清空"
+                    color: ThemeService.foregroundColor
+                    font { pixelSize: 11; family: "Noto Sans CJK SC" }
+                }
                 MouseArea {
                     id: clearMouse
                     anchors.fill: parent

@@ -17,10 +17,12 @@ Item {
         && AppearanceConfigService.widgetStyle === "glass"
     readonly property color foregroundColor: AppearanceTokens.content.ink("#f7f9fc")
     readonly property color chromeForegroundColor: onGlass ? "white" : foregroundColor
+    // Glass fallback tint sits on the system-blue hue; ink stays a deep navy
+    // so the open-button pair keeps well above the 4.5 contrast contract.
     readonly property color actionFill: AppearanceTokens.content.onBackdrop
-        ? AppearanceTokens.colors.primaryContainer : "#83c7ff"
+        ? AppearanceTokens.colors.primaryContainer : "#8ecaff"
     readonly property color actionInk: AppearanceTokens.content.onBackdrop
-        ? AppearanceTokens.colors.primaryContainerForeground : "#102239"
+        ? AppearanceTokens.colors.primaryContainerForeground : "#0f2540"
     readonly property color messageSurfaceColor: {
         if (!onGlass) return ink(0.06)
         const c = ThemeService.backgroundColor
@@ -518,6 +520,8 @@ Item {
                 radius: 9
                 visible: itemCard.isMessage && itemCard.isHovered
                 color: delMouse.containsMouse ? AppearanceTokens.colors.error : widget.ink(0.12)
+                scale: delMouse.pressed ? 0.90 : 1
+                Behavior on scale { NumberAnimation { duration: 90; easing.type: Easing.OutCubic } }
 
                 Behavior on color { ColorAnimation { duration: 100 } }
 
@@ -554,6 +558,8 @@ Item {
                 radius: 9
                 visible: itemCard.isMessage && itemCard.hasAction && itemCard.isHovered
                 color: openMouse.containsMouse ? Qt.lighter(widget.actionFill, 1.08) : widget.actionFill
+                scale: openMouse.pressed ? 0.90 : 1
+                Behavior on scale { NumberAnimation { duration: 90; easing.type: Easing.OutCubic } }
 
                 Behavior on color { ColorAnimation { duration: 100 } }
 

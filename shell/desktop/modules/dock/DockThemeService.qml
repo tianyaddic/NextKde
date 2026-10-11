@@ -79,11 +79,12 @@ QtObject {
         AppearanceTokens.colors.primaryContainerForeground, "white")
     // The fill `tileActiveGlyph` is cut for: an enabled toggle reads as a
     // primaryContainer tile carrying its own on-container ink, not as the
-    // accent with a borrowed foreground.
+    // accent with a borrowed foreground. The glass form carries the fixed
+    // system blue so an active tile reads Apple-blue in both modes.
     readonly property color tileActiveFill: AppearanceTokens.surface.pick(
-        AppearanceTokens.colors.primaryContainer, "#0a84ff")
+        AppearanceTokens.colors.primaryContainer, AppearanceTokens.colors.systemBlue)
     readonly property color tileAccent: AppearanceTokens.surface.pick(
-        AppearanceTokens.colors.primary, "#0a84ff")
+        AppearanceTokens.colors.primary, AppearanceTokens.colors.systemBlue)
     readonly property color tileDanger: AppearanceTokens.surface.pick(
         AppearanceTokens.colors.error, "#ff453a")
     readonly property color highlightColor: AppearanceTokens.surface.pick(Qt.rgba(AppearanceTokens.colors.primary.r,
