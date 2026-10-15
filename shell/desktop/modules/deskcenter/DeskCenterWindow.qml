@@ -729,21 +729,28 @@ PanelWindow {
                 Repeater {
                     model: ["small", "medium", "large"]
                     Rectangle {
+                        id: sizePreset
                         required property string modelData
+                        readonly property bool selected:
+                            DeskCenterConfigService.sizeFor(card.modelData.id)
+                                === String(sizePreset.modelData)
                         objectName: "widget-size-" + card.modelData.id + "-" + modelData
                         width: 27; height: 26; radius: 9
-                        color: DeskCenterConfigService.sizeFor(card.modelData.id) === modelData
+                        color: selected
                             ? AppearanceTokens.colors.primary
                             : AppearanceTokens.surface.pick(AppearanceTokens.colors.surfaceContainerHigh, Qt.rgba(0, 0, 0, 0.56))
                         Text {
                             anchors.centerIn: parent
-                            text: ({small: "小", medium: "中", large: "大"})[modelData]
-                            color: DeskCenterConfigService.sizeFor(card.modelData.id) === modelData
+                            text: ({small: "小", medium: "中", large: "大"})[sizePreset.modelData]
+                            color: sizePreset.selected
                                 ? AppearanceTokens.colors.primaryForeground
                                 : AppearanceTokens.surface.pick(AppearanceTokens.colors.surfaceForeground, "white")
                             font { pixelSize: 10; weight: Font.DemiBold }
                         }
-                        TapHandler { onTapped: DeskCenterConfigService.setSize(card.modelData.id, modelData) }
+                        TapHandler {
+                            onTapped: DeskCenterConfigService.setSize(
+                                card.modelData.id, String(sizePreset.modelData))
+                        }
                     }
                 }
             }
