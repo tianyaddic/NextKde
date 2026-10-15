@@ -17,14 +17,16 @@ Item {
     readonly property bool tintActive: IconAppearanceService.mode === "tint"
     readonly property color dockTintColor: tintActive
         ? IconAppearanceService.styledSymbolicColor()
-        : ThemeService.foregroundColor
+        : (root.dockHosted ? ThemeService.foregroundColor
+            : ThemeService.barForegroundColor)
     opacity: tintActive ? IconAppearanceService.opacity : 1.0
     // The bar text carries a Text.Outline edge so it holds over a bright
     // backdrop; the battery is drawn from QML rectangles, which have no text
     // style, so the same edge comes from a shadow layer instead. Tint mode
     // keeps the stronger drop shadow it always had.
     readonly property bool iconOutlined: !tintActive
-        && AppearanceTokens.isDarkTheme
+        && (root.dockHosted ? AppearanceTokens.isDarkTheme
+            : ThemeService.barForegroundOutlined)
     layer.enabled: tintActive || iconOutlined
     layer.effect: MultiEffect {
         shadowEnabled: true

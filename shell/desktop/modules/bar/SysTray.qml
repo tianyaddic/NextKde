@@ -369,7 +369,9 @@ Item {
                     layer.enabled: trayItem.isSymbolicMask && IconAppearanceService.mode === "color"
                     layer.effect: MultiEffect {
                         colorization: 1.0
-                        colorizationColor: ThemeService.foregroundColor
+                        colorizationColor: root.dockHosted
+                            ? ThemeService.foregroundColor
+                            : ThemeService.barForegroundColor
                     }
                 }
 

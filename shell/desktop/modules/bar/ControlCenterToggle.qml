@@ -33,7 +33,8 @@ Item {
     }
     BundledIcon {
         // Same readability edge the bar text carries (Text.Outline).
-        outlined: AppearanceTokens.isDarkTheme
+        outlined: root.dockHosted ? AppearanceTokens.isDarkTheme
+            : ThemeService.barForegroundOutlined
         outlineColor: Qt.rgba(0, 0, 0, 0.40)
         anchors.centerIn: parent
         width: root.iconSize
@@ -41,7 +42,8 @@ Item {
         name: "control-center"
         color: IconAppearanceService.mode === "tint"
             ? IconAppearanceService.styledSymbolicColor()
-            : ThemeService.foregroundColor
+            : (root.dockHosted ? ThemeService.foregroundColor
+                : ThemeService.barForegroundColor)
         opacity: IconAppearanceService.mode !== "color"
             ? IconAppearanceService.opacity * (root.panelOpen ? 1.0 : 0.88)
             : (root.panelOpen ? 1.0 : 0.88)

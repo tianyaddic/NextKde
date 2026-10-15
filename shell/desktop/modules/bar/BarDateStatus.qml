@@ -25,7 +25,9 @@ Item {
             id: timeText
             anchors.verticalCenter: parent.verticalCenter
             text: Qt.formatDateTime(clock.date, "h:mm")
-            color: ThemeService.foregroundColor
+            color: ThemeService.barForegroundColor
+            style: ThemeService.barForegroundOutlined ? Text.Outline : Text.Normal
+            styleColor: ThemeService.barForegroundOutlineColor
             renderType: Text.NativeRendering
             font {
                 family: AppearanceTokens.typography.displayFamily
@@ -37,7 +39,9 @@ Item {
         GlassText {
             anchors.verticalCenter: parent.verticalCenter
             text: Qt.formatDateTime(clock.date, "M月d日 dddd")
-            color: ThemeService.foregroundColor
+            color: ThemeService.barForegroundColor
+            style: ThemeService.barForegroundOutlined ? Text.Outline : Text.Normal
+            styleColor: ThemeService.barForegroundOutlineColor
             renderType: Text.NativeRendering
             font {
                 family: AppearanceTokens.typography.displayFamily

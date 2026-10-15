@@ -54,6 +54,15 @@ QtObject {
     // light surface, and light ink on a dark surface. This role is shared by
     // launcher labels, symbolic tray icons, Dock glyphs and status content.
     readonly property color foregroundColor: AppearanceTokens.surface.pick(AppearanceTokens.colors.surfaceForeground, (isDark ? darkFg : lightFg))
+    // The standalone top bar is transparent over the wallpaper, so its ink
+    // cannot safely follow the light/dark surface foreground. Keep that chrome
+    // white in glass styles and give it a dark edge at the call site. Material
+    // has its own opaque tonal bar and keeps its semantic foreground.
+    readonly property color barForegroundColor: AppearanceTokens.isMaterial
+        ? foregroundColor : "#ffffff"
+    readonly property bool barForegroundOutlined: !AppearanceTokens.isMaterial
+        || isDark
+    readonly property color barForegroundOutlineColor: Qt.rgba(0.02, 0.03, 0.05, 0.62)
     readonly property color secondaryForegroundColor: AppearanceTokens.surface.pick(AppearanceTokens.colors.surfaceVariantForeground, (isDark ? darkSecondaryFg : lightSecondaryFg))
     readonly property color tertiaryForegroundColor: AppearanceTokens.surface.pick(Qt.rgba(AppearanceTokens.colors.surfaceVariantForeground.r,
             AppearanceTokens.colors.surfaceVariantForeground.g,

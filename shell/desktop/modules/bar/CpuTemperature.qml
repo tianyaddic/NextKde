@@ -35,10 +35,12 @@ Item {
             width: 19
             height: 19
             kind: "temperature"
-            glyphColor: ThemeService.foregroundColor
+            glyphColor: root.dockHosted ? ThemeService.foregroundColor
+                : ThemeService.barForegroundColor
             // The labels beside this glyph carry a Text.Outline edge; the
             // glyph takes the same one so the row reads as a single mark.
-            outlined: ThemeService.isDark
+            outlined: root.dockHosted ? ThemeService.isDark
+                : ThemeService.barForegroundOutlined
             outlineColor: Qt.rgba(0, 0, 0, 0.40)
             anchors.verticalCenter: parent.verticalCenter
         }
@@ -49,9 +51,13 @@ Item {
 
             Text {
                 text: "平均温度 " + root.currentC + "°"
-                color: ThemeService.foregroundColor
-                style: ThemeService.isDark ? Text.Outline : Text.Normal
-                styleColor: Qt.rgba(0, 0, 0, 0.40)
+                color: root.dockHosted ? ThemeService.foregroundColor
+                    : ThemeService.barForegroundColor
+                style: root.dockHosted
+                    ? (ThemeService.isDark ? Text.Outline : Text.Normal)
+                    : (ThemeService.barForegroundOutlined ? Text.Outline : Text.Normal)
+                styleColor: root.dockHosted ? Qt.rgba(0, 0, 0, 0.40)
+                    : ThemeService.barForegroundOutlineColor
                 font {
                     family: "Noto Sans CJK SC, sans-serif"
                     pixelSize: 9
@@ -61,9 +67,13 @@ Item {
 
             Text {
                 text: "最高温度 " + root.maximum5MinuteC + "°"
-                color: ThemeService.foregroundColor
-                style: ThemeService.isDark ? Text.Outline : Text.Normal
-                styleColor: Qt.rgba(0, 0, 0, 0.40)
+                color: root.dockHosted ? ThemeService.foregroundColor
+                    : ThemeService.barForegroundColor
+                style: root.dockHosted
+                    ? (ThemeService.isDark ? Text.Outline : Text.Normal)
+                    : (ThemeService.barForegroundOutlined ? Text.Outline : Text.Normal)
+                styleColor: root.dockHosted ? Qt.rgba(0, 0, 0, 0.40)
+                    : ThemeService.barForegroundOutlineColor
                 font {
                     family: "Noto Sans CJK SC, sans-serif"
                     pixelSize: 9

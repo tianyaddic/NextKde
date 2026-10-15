@@ -132,6 +132,7 @@ Item {
                 NetworkTraffic {
                     id: networkTraffic
                     anchors.verticalCenter: parent.verticalCenter
+                    dockHosted: root.dockHosted
                     visible: !root.dockHosted && NetworkService.available
                         && NetworkService.deviceState === "connected"
                     onPanelToggleRequested: networkStatus.panelToggleRequested()

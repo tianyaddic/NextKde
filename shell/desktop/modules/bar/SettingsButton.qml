@@ -41,7 +41,8 @@ Item {
     // 图标保持一致；图案本身来自 BundledIcons，不查系统主题。
     BundledIcon {
         // Same readability edge the bar text carries (Text.Outline).
-        outlined: AppearanceTokens.isDarkTheme
+        outlined: root.dockHosted ? AppearanceTokens.isDarkTheme
+            : ThemeService.barForegroundOutlined
         outlineColor: Qt.rgba(0, 0, 0, 0.40)
         anchors.centerIn: parent
         width: root.iconSize
@@ -49,7 +50,8 @@ Item {
         name: "status-settings"
         color: IconAppearanceService.mode === "tint"
             ? IconAppearanceService.styledSymbolicColor()
-            : ThemeService.foregroundColor
+            : (root.dockHosted ? ThemeService.foregroundColor
+                : ThemeService.barForegroundColor)
         opacity: IconAppearanceService.mode !== "color"
             ? IconAppearanceService.opacity : 1.0
         scale: pointer.pressed ? 0.90 : pointer.containsMouse ? 1.06 : 1

@@ -36,7 +36,8 @@ Item {
     readonly property bool connected: NetworkService.deviceState === "connected"
     readonly property color statusIconColor: IconAppearanceService.mode === "tint"
         ? IconAppearanceService.styledSymbolicColor()
-        : ThemeService.foregroundColor
+        : (root.dockHosted ? ThemeService.foregroundColor
+            : ThemeService.barForegroundColor)
     readonly property real statusIconOpacity: IconAppearanceService.mode !== "color"
         ? IconAppearanceService.opacity : 1.0
 
@@ -44,7 +45,8 @@ Item {
 
         // Same readability edge the bar text carries (Text.Outline).
 
-        outlined: AppearanceTokens.isDarkTheme
+        outlined: root.dockHosted ? AppearanceTokens.isDarkTheme
+            : ThemeService.barForegroundOutlined
 
         outlineColor: Qt.rgba(0, 0, 0, 0.40)
         id: networkGlyph

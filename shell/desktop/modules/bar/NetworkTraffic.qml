@@ -10,13 +10,14 @@ import qs.desktop.modules.dock
 Item {
     id: root
 
+    property bool dockHosted: false
+
     signal panelToggleRequested()
 
-    // The readouts already take the glass tint through ThemeService; the
-    // arrow glyph has to move with them or the two halves of one indicator
-    // disagree. The ink follows the glass, so while 液态玻璃跟随外观模式 is off
-    // the arrow still strokes exactly the white it stroked before.
-    readonly property color glyphInk: AppearanceTokens.content.glassInk()
+    // Keep the arrows with the adjacent labels: wallpaper-facing bar content
+    // uses the bar's white ink, while Dock-hosted content follows its glass.
+    readonly property color glyphInk: root.dockHosted
+        ? AppearanceTokens.content.glassInk() : ThemeService.barForegroundColor
 
     implicitWidth: trafficContent.implicitWidth
     implicitHeight: 22
@@ -62,7 +63,8 @@ Item {
                 ctx.reset()
                 ctx.lineCap = "round"
                 ctx.lineJoin = "round"
-                if (AppearanceTokens.isDarkTheme) {
+                if (root.dockHosted ? AppearanceTokens.isDarkTheme
+                        : ThemeService.barForegroundOutlined) {
                     ctx.save()
                     ctx.strokeStyle = Qt.rgba(0, 0, 0, 0.38)
                     ctx.lineWidth = 1.35 + 2.2
@@ -79,14 +81,16 @@ Item {
             spacing: -1
             Text {
                 text: "下行 " + NetworkService.formatRate(NetworkService.downloadBytesPerSecond)
-                color: ThemeService.foregroundColor
+                color: root.dockHosted ? ThemeService.foregroundColor
+                    : ThemeService.barForegroundColor
                 style: Text.Outline
                 styleColor: Qt.rgba(0, 0, 0, 0.38)
                 font { family: "SF Pro Display"; pixelSize: 9; weight: Font.DemiBold }
             }
             Text {
                 text: "上行 " + NetworkService.formatRate(NetworkService.uploadBytesPerSecond)
-                color: ThemeService.foregroundColor
+                color: root.dockHosted ? ThemeService.foregroundColor
+                    : ThemeService.barForegroundColor
                 style: Text.Outline
                 styleColor: Qt.rgba(0, 0, 0, 0.38)
                 font { family: "SF Pro Display"; pixelSize: 9; weight: Font.DemiBold }
