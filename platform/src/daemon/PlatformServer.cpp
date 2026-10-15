@@ -3595,13 +3595,17 @@ void PlatformServer::runAudioOutputs(QLocalSocket *socket, const QJsonObject &re
 bool PlatformServer::handleApplication(QLocalSocket *socket,
                                        const QJsonObject &request)
 {
-    if (operation(request) != QStringLiteral("application.launch"))
+    const QString op = operation(request);
+    if (op != QStringLiteral("application.launch")
+        && op != QStringLiteral("application.desktop-shortcut"))
         return false;
 
     const QJsonObject payload = request.value(QStringLiteral("payload")).toObject();
     const QString desktopId = payload.value(QStringLiteral("desktopId")).toString().trimmed();
     if (desktopId.isEmpty() || desktopId.contains(QChar('/'))
-        || desktopId.contains(QChar('\\')) || desktopId.size() > 255) {
+        || desktopId.contains(QChar('\\')) || desktopId.contains(QChar('\0'))
+        || desktopId.contains(QChar('\n')) || desktopId.contains(QChar('\r'))
+        || desktopId.size() > 255) {
         respond(socket, request, false, {}, QStringLiteral("invalid-desktop-id"),
                 QStringLiteral("应用标识无效"), false);
         return true;
@@ -3611,6 +3615,75 @@ bool PlatformServer::handleApplication(QLocalSocket *socket,
     if (!service || !service->isApplication()) {
         respond(socket, request, false, {}, QStringLiteral("application-not-found"),
                 QStringLiteral("应用启动器不存在"), false);
+        return true;
+    }
+
+    if (op == QStringLiteral("application.desktop-shortcut")) {
+        QFile source(service->entryPath());
+        if (!source.open(QIODevice::ReadOnly) || source.size() > 2 * 1024 * 1024) {
+            respond(socket, request, false, {}, QStringLiteral("shortcut-source-unreadable"),
+                    QStringLiteral("无法读取应用启动器"), false);
+            return true;
+        }
+        const QByteArray original = source.readAll();
+        const QString directory = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+        if (directory.isEmpty() || !QDir().mkpath(directory)) {
+            respond(socket, request, false, {}, QStringLiteral("desktop-unavailable"),
+                    QStringLiteral("无法创建桌面目录"), false);
+            return true;
+        }
+
+        const QString canonicalId = service->storageId();
+        for (const QFileInfo &launcher : QDir(directory).entryInfoList(
+                 {QStringLiteral("*.desktop")}, QDir::Files)) {
+            QSettings existing(launcher.absoluteFilePath(), QSettings::IniFormat);
+            QFile file(launcher.absoluteFilePath());
+            const bool sameSource = existing.value(
+                QStringLiteral("Desktop Entry/X-KOS-SourceDesktopId")).toString() == canonicalId;
+            const bool exactCopy = file.size() == original.size()
+                && file.open(QIODevice::ReadOnly) && file.readAll() == original;
+            if (sameSource || exactCopy) {
+                respond(socket, request, true,
+                        {{QStringLiteral("path"), launcher.absoluteFilePath()},
+                         {QStringLiteral("alreadyExists"), true}});
+                return true;
+            }
+        }
+
+        QString name = canonicalId;
+        if (!name.endsWith(QStringLiteral(".desktop")))
+            name += QStringLiteral(".desktop");
+        if (name != QFileInfo(name).fileName() || name.contains(QChar('\\'))
+            || name.contains(QChar('\n')) || name.contains(QChar('\r'))) {
+            respond(socket, request, false, {}, QStringLiteral("invalid-desktop-id"),
+                    QStringLiteral("应用标识无效"), false);
+            return true;
+        }
+        const QString destination = uniquePath(directory, name);
+        QByteArray contents = original;
+        const qsizetype header = contents.indexOf("[Desktop Entry]");
+        const qsizetype lineEnd = header < 0 ? -1 : contents.indexOf('\n', header);
+        if (destination.isEmpty() || lineEnd < 0) {
+            respond(socket, request, false, {}, QStringLiteral("invalid-desktop-file"),
+                    QStringLiteral("应用启动器无效或桌面文件名不可用"), false);
+            return true;
+        }
+        contents.insert(lineEnd + 1,
+                        "X-KOS-SourceDesktopId=" + canonicalId.toUtf8() + "\n");
+        QSaveFile target(destination);
+        if (!target.open(QIODevice::WriteOnly)
+            || target.write(contents) != contents.size()
+            || !target.setPermissions(QFileDevice::ReadOwner | QFileDevice::WriteOwner
+                                      | QFileDevice::ExeOwner | QFileDevice::ReadGroup
+                                      | QFileDevice::ReadOther)
+            || !target.commit()) {
+            respond(socket, request, false, {}, QStringLiteral("shortcut-create-failed"),
+                    QStringLiteral("创建桌面快捷方式失败：") + target.errorString(), false);
+            return true;
+        }
+        respond(socket, request, true,
+                {{QStringLiteral("path"), destination},
+                 {QStringLiteral("alreadyExists"), false}});
         return true;
     }
 

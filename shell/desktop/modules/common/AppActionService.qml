@@ -17,6 +17,7 @@ QtObject {
     signal unpinRequested(string appId)
     signal hideRequested(string appId)
     signal editRequested(var application)
+    signal desktopShortcutCreated(string path, bool alreadyExists)
 
     // execDetached exemption (R12): the desktop-entry Exec line runs through
     // DesktopEntry.execute(), not through a shell or system-control command.
@@ -138,6 +139,36 @@ QtObject {
         // KOS-owned deep links currently use explicit argv rather than URLs.
         // Keep that narrow path until each app publishes a URL scheme.
         return _executeCommandDirect(Array.from(baseCommand).concat(extra), desktopId)
+    }
+
+    function addToDesktop(appId, onCreated) {
+        const entry = AppPresentationService.entryFor(appId)
+        if (!entry || !PlatformClient.connected)
+            return false
+        // DesktopEntry objects are replaced on catalogue rescans; capture the
+        // id and display name before the asynchronous request instead.
+        const desktopId = String(entry.id).endsWith(".desktop")
+            ? String(entry.id) : String(entry.id) + ".desktop"
+        const name = String(entry.name || desktopId)
+        PlatformClient.request("application.desktop-shortcut", {
+            desktopId: desktopId
+        }, function(response) {
+            const result = response?.result || ({})
+            if (response?.ok && result.path) {
+                service.desktopShortcutCreated(result.path, !!result.alreadyExists)
+                if (onCreated)
+                    onCreated(String(result.path), !!result.alreadyExists)
+            }
+            PlatformClient.request("notify", {
+                appName: "应用启动器",
+                summary: response?.ok
+                    ? (result.alreadyExists ? "桌面快捷方式已存在" : "已添加到桌面")
+                    : "添加到桌面失败",
+                body: response?.ok ? name : (response?.error?.message || "操作未完成"),
+                icon: "user-desktop"
+            })
+        })
+        return true
     }
 
     function pin(appId) {

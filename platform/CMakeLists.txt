@@ -164,6 +164,14 @@ if(BUILD_TESTING)
                 ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_media_feedback.py
                 $<TARGET_FILE:kos-platform>)
         set_tests_properties(kos-platform.media-feedback PROPERTIES LABELS platform TIMEOUT 60)
+        find_program(KBUILD_SYCOCA_EXECUTABLE kbuildsycoca6)
+        if(KBUILD_SYCOCA_EXECUTABLE)
+            add_test(NAME kos-platform.desktop-shortcut
+                COMMAND ${KOS_PYTHON_EXECUTABLE}
+                    ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_desktop_shortcut.py
+                    $<TARGET_FILE:kos-platform>)
+            set_tests_properties(kos-platform.desktop-shortcut PROPERTIES LABELS platform TIMEOUT 60)
+        endif()
         add_test(NAME kos-platform.file-copy
             COMMAND ${KOS_PYTHON_EXECUTABLE}
                 ${CMAKE_CURRENT_SOURCE_DIR}/tests/test_file_copy.py

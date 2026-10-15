@@ -4,6 +4,7 @@ import Quickshell.Wayland
 import Quickshell.Widgets
 import qs.desktop.modules.common
 import qs.desktop.modules.applauncher
+import qs.desktop.modules.deskcenter
 import "DockMagnification.mjs" as Magnification
 
 // ────────────────────────────────────────────────────────────────
@@ -464,6 +465,12 @@ Item {
                     break
                 case "pin":
                     AppActionService.pin(icon.appId)
+                    break
+                case "add_to_desktop":
+                    AppActionService.addToDesktop(icon.appId, function(path) {
+                        DesktopFilesService.placeEntries([path],
+                            DesktopFilesService.defaultOutput)
+                    })
                     break
                 }
             }
@@ -975,6 +982,8 @@ Item {
                     if (icon.isRunning)
                         menu.addItem("window-close", "关闭所有窗口", "close_all")
                 }
+                if (icon.appId)
+                    menu.addItem("user-desktop", "添加到桌面", "add_to_desktop")
                 DockModelService.activeContextMenu = menu
                 DockModelService.openDockPopup(menu)
             } else if (!icon._heldForEdit) {

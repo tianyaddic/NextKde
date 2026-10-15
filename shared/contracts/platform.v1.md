@@ -24,6 +24,9 @@ Current operation groups are:
 
 - `application.launch` (KDE-native desktop-entry launch; accepts a desktop ID
   and optional URLs, never an arbitrary command)
+- `application.desktop-shortcut` (payload `{desktopId}`; copies the installed
+  launcher into the XDG desktop directory and returns `{path, alreadyExists}`;
+  existing shortcuts are reused and unrelated files are never overwritten)
 - `clipboard.set`, `clipboard.read`, `clipboard.save-image`,
   `clipboard.history.watch-images`,
   `clipboard.history.list`, `clipboard.history.copy`,
